@@ -59,8 +59,8 @@ void CXTaskHost::DoLoop(U16 tmOnce)
 	// led indicator(blink quickly)
 	if(m_blinkCnt1>=m_tmBlink1)
 	{
-		m_vrfReady = (g_sys[4] & 0x20)? 1:0;       // vrf ready state
-		m_vrfLink  = (g_sys[4] & 0x10)? 1:0;       // vrf link state
+		m_vrfReady = (g_ervinfo[ERVINFO_INDEX_BASE_STATE] & 0x80)? 1:0;       // vrf ready state
+		m_vrfLink  = (g_ervinfo[ERVINFO_INDEX_BASE_STATE] & 0x01)? 1:0;       // vrf link state
 		m_blinkCnt1 = 0;                           // clear quick blinking counter
 		if(0xff==g_led2)                           // LED2 is in auto mode
 		{
@@ -89,8 +89,8 @@ void CXTaskHost::DoLoop(U16 tmOnce)
 	// led indicator(blink slowly)
 	if(m_blinkCnt2>=m_tmBlink2)
 	{
-		m_vrfReady = (g_sys[4] & 0x20)? 1:0;       // vrf ready state
-		m_vrfLink  = (g_sys[4] & 0x10)? 1:0;       // vrf link state
+		m_vrfReady = (g_ervinfo[ERVINFO_INDEX_BASE_STATE] & 0x80)? 1:0;       // vrf ready state
+		m_vrfLink  = (g_ervinfo[ERVINFO_INDEX_BASE_STATE] & 0x01)? 1:0;       // vrf link state
 		m_blinkCnt2=0;                             // clear slow blinking counter
 		if(1==m_wifiReady && 0xff==g_led2)         // wifi ready state is OK and led2 is in auto mode
 		{
@@ -209,12 +209,12 @@ void CXTaskHost::sampling(void)
 		// high level 4 times continuously
 		if(0x0f == (m_swiBit[i]&0x0f))
 		{
-			g_host[1] |= (1<<(5-i));
+			g_platform[PLATFORM_INDEX_SW_VAL] |= (1<<(5-i));
 		}
 		// low level 4 times continuously
 		else if(0==(m_swiBit[i]&0x0f))
 		{
-			g_host[1] &= ~(1<<(5-i));
+			g_platform[PLATFORM_INDEX_SW_VAL] &= ~(1<<(5-i));
 		}
 	}
 
@@ -222,35 +222,35 @@ void CXTaskHost::sampling(void)
 	if(1==(m_readyBit&0x0f))                       // wifi module initilization is OK
 	{
 		m_wifiReady = 1;
-		g_host[0] |= 0x01;
+		g_platform[PLATFORM_INDEX_WIFI_STATE] |= 0x01;
 	}
 	else if(0==(m_readyBit&0x0f))                  // wifi module is initilizing
 	{
 		m_wifiReady = 0;
-		g_host[0] &= ~(0x01);
+		g_platform[PLATFORM_INDEX_WIFI_STATE] &= ~(0x01);
 	}
 
 	// update effective wifi-link value
 	if(1==(m_linkBit&0x0f))                        // wifi module connectted to ADS
 	{
 		m_wifiLink = 1;
-		g_host[0] |= 0x02;
+		g_platform[PLATFORM_INDEX_WIFI_STATE] |= 0x02;
 	}
 	else if(0==(m_linkBit&0x0f))                   // wifi module disconnectted to ADS
 	{
 		m_wifiLink = 0;
-		g_host[0] &= ~(0x02);
+		g_platform[PLATFORM_INDEX_WIFI_STATE] &= ~(0x02);
 	}
 
 	// led2(red) status
 	if(LED_Get(LED2))
-		g_host[2] |= 0x01;                         // led2 on
+		g_platform[PLATFORM_INDEX_LED_STATE] |= 0x01;                         // led2 on
 	else
-		g_host[2] &= ~0x01;                        // led2 off
+		g_platform[PLATFORM_INDEX_LED_STATE] &= ~0x01;                        // led2 off
 
 	// led3(green) status
 	if(LED_Get(LED3))
-		g_host[2] |= 0x02;                         // led3 on
+		g_platform[PLATFORM_INDEX_LED_STATE] |= 0x02;                         // led3 on
 	else
-		g_host[2] &= ~0x02;                        // led3 off
+		g_platform[PLATFORM_INDEX_LED_STATE] &= ~0x02;                        // led3 off
 }

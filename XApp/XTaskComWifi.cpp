@@ -37,7 +37,7 @@ void CXTaskComWifi::DetectFactory(void)
 {
 	// check factoryreset firstly (SW1-1 is ON,SW1-2~SW1-6 are all OFF)
 	// detect factory reset in the first 5000ms after MCU boot(wifi module boot required 1800ms)
-	if(HOST_DAT_SW1_ON==(g_host[1]&0x3f))          // 1-0-0-0-0-0
+	if(HOST_DAT_SW1_ON==(g_platform[PLATFORM_INDEX_SW_VAL]&0x3f))          // 1-0-0-0-0-0
 	{
 		m_factory = 1;                             // generate a factory reset flag
 	}

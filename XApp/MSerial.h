@@ -52,6 +52,7 @@ protected:
 	U8  m_txLen;                                   // transmit data size
 
 	U16 m_idleCnt;                                 // timer count of interval between one char and one char
+	U16 m_onesendCnt;															//timer count of send frequency
 
 	U16 m_tmRxOver;                                // configured interval time
 	U16 m_tmNoAck;                                 // configured no acknowledge time

@@ -22,8 +22,81 @@
 #include "XTaskComVRF.h"
 #include "XTaskComWifi.h"
 
-#define OD_DAT_LINK       0x10                     // vrf outdoor link state
-#define OD_DAT_READY      0x20                     // vrf outdoor ready state
+#define OD_DAT_LINK       				0x01                     // ERV link state
+#define OD_DAT_READY      				0x80                     // ERV ready state
+
+#define POWER_STATE								0x04
+#define SLEEP_STATE								0x20
+#define FAN_STATE									0x0e
+#define FAULT_STATE								0x80
+#define HEATING_STATE							0x02
+#define CLEAN_STATE								0x20
+
+#define FAN_AVAILABLE_STATE				0x01
+#define SLEEP_AVAILABLE_STATE			0x10
+#define HEATING_AVAILABLE_STATE		0x01
+#define CLEAN_AVAILABLE_STATE			0x10
+#define TEMP_AVAILABLE_STATE			0x01
+#define HUMI_AVAILABLE_STATE			0x02
+#define PM2_5_AVAILABLE_STATE			0x04
+#define CO2_AVAILABLE_STATE				0x08
+#define HCHO_AVAILABLE_STATE			0x10
+#define TVOC_AVAILABLE_STATE			0x20
+
+#define ERVINFO_INDEX_GROUP_NUM									0
+#define ERVINFO_INDEX_BASE_STATE								1
+#define ERVINFO_INDEX_FAULT_HI									2
+#define ERVINFO_INDEX_FAULT_LO									3
+#define ERVINFO_INDEX_FAN_SLEEP									4
+#define ERVINFO_INDEX_HEAT_CLEAN								5
+#define ERVINFO_INDEX_SENSOR_AVAILABLE					6
+#define ERVINFO_INDEX_TEMP_VAL									7
+#define ERVINFO_INDEX_HUMI_VAL									8
+#define ERVINFO_INDEX_PM2_5_VAL_HI							9
+#define ERVINFO_INDEX_PM2_5_VAL_LO							10
+#define ERVINFO_INDEX_CO2_VAL_HI								11
+#define ERVINFO_INDEX_CO2_VAL_LO								12
+#define ERVINFO_INDEX_HCHO_VAL									13
+#define ERVINFO_INDEX_TVOC_VAL									14
+#define ERVINFO_SIZE														15
+
+#define PLATFORM_INDEX_WIFI_STATE								0
+#define PLATFORM_INDEX_SW_VAL										1
+#define PLATFORM_INDEX_LED_STATE								2
+#define PLATFORM_SIZE        										3
+
+#define MODULE_INDEX_WIFI_MODULE_VER_HI					0
+#define MODULE_INDEX_WIFI_MODULE_VER_LO					1
+#define MODULE_INDEX_ERV_NUM_AND_STATE					2
+#define MODULE_INDEX_SYSTEM_FAULT_HI						3
+#define MODULE_INDEX_SYSTEM_FAULT_LO						4
+#define MODULE_SIZE															5
+
+#define ERVCMD_INDEX_GROUP_NUM									0
+#define ERVCMD_INDEX_AVAILABLE_STATE						1
+#define ERVCMD_INDEX_CMD_DATA										2
+#define ERVCMD_SIZE															3
+
+#define MODULECMD_INDEX_CTRL_TYPE								0
+#define MODULECMD_INDEX_CTRL_CMD								1
+#define MODULECMD_INDEX_CTRL_DATA								2
+#define MODULECMD_SIZE													3
+
+#define  SZ_PLATFORM_SIZE						(PLATFORM_SIZE*2)
+#define  SZ_MODULE_SIZE							(MODULE_SIZE*2)
+#define  SZ_ERVINFO_SIZE						(ERVINFO_SIZE*2)
+#define  SZ_ERVCMD_SIZE							(ERVCMD_SIZE*2)
+#define  SZ_MODULECMD_SIZE					(MODULECMD_SIZE*2)
+
+#define ERV_CMD_LOCK_AVAILABLE_MASK				0x01
+#define ERV_CMD_POWER_AVAILABLE_MASK			0x02
+#define ERV_CMD_SLEEP_AVAILABLE_MASK			0x04
+#define ERV_CMD_FAN_AVAILABLE_MASK				0x08
+
+#define ERV_CMD_LOCK_DATA_MASK						0x01
+#define ERV_CMD_POWER_DATA_MASK						0x02
+#define ERV_CMD_SLEEP_DATA_MASK						0x04
+#define ERV_CMD_FAN_DATA_MASK							0x70
 
 #define HOST_DAT_SW1_ON   0x20                     // sw1-1
 #define HOST_DAT_SW2_ON   0x10                     // sw1-2
@@ -38,21 +111,5 @@
 #define  OEM_HOST_VER     "YES_V1.00"              // oem host template version
 #define  FW_VER           "V1.00_20160822"         // host software version
 
-#define  HOST_SIZE        10                       // host data buffer size
-#define  SYS_SIZE         15                       // vrf system data buffer size
-#define  ODU_SIZE         120                      // vrf outdoor data  buffer size
-#define  IDU_SIZE         15                       // vrf indoor data buffer size
-#define  RMT_SIZE         25                       // vrf remote control data buffer size
-#define  CMD_SIZE         25                       // host command control data buffer size
-
-#define  SZ_OEM_VER_SIZE  50                       // oem host version prop buffer size
-#define  SZ_FW_VER_SIZE   30                       // host software verison prop buffer size
-
-#define  SZ_HOST_SIZE     (HOST_SIZE*2)            // host prop buffer size
-#define  SZ_SYS_SIZE      (SYS_SIZE*2)             // vrf system prop buffer size
-#define  SZ_ODU_SIZE      (ODU_SIZE*2)             // vrf outdoor prop buffer size
-#define  SZ_IDU_SIZE      (IDU_SIZE*2*8)           // vrf indoor prop buffer size
-#define  SZ_RMT_SIZE      (RMT_SIZE*2)             // vrf remote control prop buffer size
-#define  SZ_CMD_SIZE      (CMD_SIZE*2)             // host command control prop buffer size
 
 #endif /* __APP_XAPPDEF_H */

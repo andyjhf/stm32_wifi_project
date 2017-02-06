@@ -19,14 +19,16 @@ __weak U8   USART6_GetStatus(void)          { return 0;} // get usart6 state
 
 CMSerial::CMSerial(void)
 {
-	m_state   = S_RECEIVE;                         // state
+	m_state   = S_ONSEND;                         // state
 	m_stateCnt= 0;                                 // time count of one state
 	m_rxLen   = 0;                                 // received data size
 	m_txLen   = 0;                                 // transmit data size
 	m_idleCnt = 0;                                 // timer count of interval between one char and one char
+	
+	m_onesendCnt = 500;															//timer count of send frequency
 
 	m_tmRxOver= 5;                                 // configured interval time
-	m_tmNoAck = 80;                                // configured no acknowledge time
+	m_tmNoAck = 200;                                // configured no acknowledge time
 	m_tmWait  = 5;                                 // configured waiting time
 }
 
@@ -65,17 +67,20 @@ void CMSerial::DoLoop(U16 tmOnce)
 void CMSerial::OnSend(void)
 {
 	m_txLen = 0;                                   // clear tranimit buffer
-	if(OnNewSend())                                // handle whether there is data to send or not
+	if(m_stateCnt > m_onesendCnt)
 	{
-		m_state = S_WAITING;                       // if need to send data this time then turn to [waiting] state
-		USART6_PreTransmit();                      // diable RXNEIE,enable TCIE and RS485-DE,clear buffer
-		USART6_Write(m_txBuf, m_txLen);            // copy send data to uart tx buffer
-	}
-	else
-	{
-		m_state = S_RECEIVE;                       // if there is no data to send, turn to [receive] state
-		m_rxLen = 0;                               // clear receiver buffer
-		USART6_PreReceive();                       // set uart to rx state
+		if(OnNewSend())                                // handle whether there is data to send or not
+		{
+			m_state = S_WAITING;                       // if need to send data this time then turn to [waiting] state
+			USART6_PreTransmit();                      // diable RXNEIE,enable TCIE and RS485-DE,clear buffer
+			USART6_Write(m_txBuf, m_txLen);            // copy send data to uart tx buffer
+		}
+//		else
+//		{
+//			m_state = S_RECEIVE;                       // if there is no data to send, turn to [receive] state
+//			m_rxLen = 0;                               // clear receiver buffer
+//			USART6_PreReceive();                       // set uart to rx state
+//		}
 	}
 }
 
@@ -118,18 +123,21 @@ void CMSerial::Receiving(U16 tmOnce)
 
 void CMSerial::OnReceive(void)
 {
-	if(OnNewRecv())                                // handle to received data and cheak whether need to be sent
-	{
-		m_state = S_ONSEND;                        // turn to OnSend state
-		m_txLen = 0;                               // clear send buffer
-	}
-	else                                           // do not need to send data
-	{
-		m_state = S_RECEIVE;                       // turn to receive state
-		m_rxLen=0;                                 // clear receiver buffer
-		USART6_PreReceive();                       // set uart to rx state
-	}
-
+//	if(OnNewRecv())                                // handle to received data and cheak whether need to be sent
+//	{
+//		m_state = S_ONSEND;                        // turn to OnSend state
+//		m_txLen = 0;                               // clear send buffer
+//	}
+//	else                                           // do not need to send data
+//	{
+//		m_state = S_RECEIVE;                       // turn to receive state
+//		m_rxLen=0;                                 // clear receiver buffer
+//		USART6_PreReceive();                       // set uart to rx state
+//	}
+	OnNewRecv();
+	m_state = S_ONSEND;                        // turn to OnSend state
+	m_txLen = 0;                               // clear send buffer
+	
 	m_idleCnt=0;                                   // clear idle counter
 	m_stateCnt=0;                                  // clear state counter
 }

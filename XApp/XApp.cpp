@@ -7,70 +7,43 @@ U8 g_led2 = 0xff;                                  // set led2 on/off manual or 
 U8 g_led3 = 0xff;                                  // set led3 on/off manual or automatic mode(0xff)
                               
 // global protocol data
-U8  g_host[HOST_SIZE];                             // Host data
-U8  g_sys[SYS_SIZE];                               // VRF outdoor data
-U8  g_od[4][ODU_SIZE];                             // VRF outdoor data
-U8  g_id[64][IDU_SIZE];                            // VRF indoor data
-U8  g_remote[RMT_SIZE];                            // VRF remote control data
-U8  g_command[CMD_SIZE];                           // Host command data
+U8  g_platform[PLATFORM_SIZE]; 
+U8  g_module[MODULE_SIZE];
+U8  g_ervinfo[ERVINFO_SIZE]; 
+U8  g_ervcommand[ERVCMD_SIZE];
+U8  g_modulecommand[MODULECMD_SIZE];
 
 // global protocol prop
-U8  g_szOemVer[SZ_OEM_VER_SIZE+1];                 // oem Host template version prop
-U8  g_szFwVer[SZ_FW_VER_SIZE+1];                   // Host firmware version prop
-U8  g_szHost[SZ_HOST_SIZE+1];                      // Host multi-props combination prop
-U8  g_szSystem[SZ_SYS_SIZE+1];                     // VRF outdoor multi-props combination prop
-U8  g_szOutdoor[4][SZ_ODU_SIZE+1];                 // VRF outdoor multi-props combination prop
-U8  g_szIndoor[8][SZ_IDU_SIZE+1];                  // VRF indoor multi-props combination prop
-U8  g_szRemote1[SZ_RMT_SIZE+1];                    // VRF remote control command prop
-U32 g_remote2;                                     // 
-U8  g_szCommand1[SZ_CMD_SIZE+1];                   // Host command prop
-U32 g_command2;                                    // 
+U8  g_szPlatform[SZ_PLATFORM_SIZE+1]; 
+U8  g_szModule[SZ_MODULE_SIZE+1];
+U8  g_szErvinfo[SZ_ERVINFO_SIZE+1];
+U8  g_szErvcommand[SZ_ERVCMD_SIZE+1];
+U8  g_szModulecommand[SZ_MODULECMD_SIZE+1];
+
 struct sched_prop g_timer[64];                     // schedule array props
 
 // global task object
-CXTaskComVRF  *taskVRF  = NULL;                    // VRF communication task
+CXTaskComVRF  *taskVRF  = NULL;                    // ERV communication task
 CXTaskHost    *taskHost = NULL;                    // Host processing task
 CXTaskComWifi *taskWifi = NULL;                    // Module communication task
 
 // index of prop table
-#define PI_VER       1                             // firmware version prop index of table
-#define PI_HOST      2                             // Host prop index of table
-#define PI_SYS       3                             // VRF sytem prop index of table
-#define PI_ODU_01    4                             // VRF 1# outdoor prop index of table
-#define PI_ODU_04    7                             // VRF 4# outdoor prop index of table
-#define PI_IDU_01    (PI_ODU_04+1)                 // VRF 1# indoor-list prop index of table
-#define PI_IDU_08    (PI_ODU_04+8)                 // VRF 8# indoor-list prop index of table
-#define PI_Y_RMT_02  (PI_IDU_08+4)                 // VRF remote control command prop prop index of table
-#define PI_SCH_01    (PI_Y_RMT_02+1)               // 1# schedule prop index of table
-#define PI_SCH_64    (PI_Y_RMT_02+64)              // 64# schedule prop index of table
+#define PI_PLATFORM       0                             // WIFI prop index of table
+#define PI_MODULE      		1                             // Host prop index of table
+#define PI_ERVINFO       	2                             // ERV sytem prop index of table
+#define PI_ERVCOMMAND    	3                             // ERV control prop index of table
+#define PI_MODULECOMMAND  4                             // wifi control prop index of table
+#define MAX_PROP_NUMBER		5
 
 // global prop table
 struct prop prop_table[] = {
-	{ AYLA_VER_NAME, ATLV_UTF8, NULL,    prop_send_generic, &g_szOemVer[0],      sizeof(g_szOemVer)-1,    AFMT_READ_ONLY},
-
-	{ "H_FWVER", ATLV_UTF8, NULL,        prop_send_generic, &g_szFwVer[0],       sizeof(g_szFwVer)-1,    AFMT_READ_ONLY},
-	{ "H_00001", ATLV_UTF8, NULL,        prop_send_generic, &g_szHost[0],        sizeof(g_szHost)-1,     AFMT_READ_ONLY},
-
-	{ "Y_U0001", ATLV_UTF8, NULL,        prop_send_generic, &g_szSystem[0],      sizeof(g_szSystem)-1,   AFMT_READ_ONLY},
-	{ "Y_U0101", ATLV_UTF8, NULL,        prop_send_generic, &g_szOutdoor[0],     sizeof(g_szOutdoor)-1,  AFMT_READ_ONLY},
-	{ "Y_U0201", ATLV_UTF8, NULL,        prop_send_generic, &g_szOutdoor[0],     sizeof(g_szOutdoor)-1,  AFMT_READ_ONLY},
-	{ "Y_U0301", ATLV_UTF8, NULL,        prop_send_generic, &g_szOutdoor[0],     sizeof(g_szOutdoor)-1,  AFMT_READ_ONLY},	
-	{ "Y_U0401", ATLV_UTF8, NULL,        prop_send_generic, &g_szOutdoor[0],     sizeof(g_szOutdoor)-1,  AFMT_READ_ONLY},
-
-	{ "Y_I0101", ATLV_UTF8, NULL,        prop_send_generic, &g_szIndoor[0][0],   sizeof(g_szIndoor[0])-1, AFMT_READ_ONLY},
-	{ "Y_I0201", ATLV_UTF8, NULL,        prop_send_generic, &g_szIndoor[1][0],   sizeof(g_szIndoor[1])-1, AFMT_READ_ONLY},
-	{ "Y_I0301", ATLV_UTF8, NULL,        prop_send_generic, &g_szIndoor[2][0],   sizeof(g_szIndoor[2])-1, AFMT_READ_ONLY},
-	{ "Y_I0401", ATLV_UTF8, NULL,        prop_send_generic, &g_szIndoor[3][0],   sizeof(g_szIndoor[3])-1, AFMT_READ_ONLY},
-	{ "Y_I0501", ATLV_UTF8, NULL,        prop_send_generic, &g_szIndoor[4][0],   sizeof(g_szIndoor[4])-1, AFMT_READ_ONLY},
-	{ "Y_I0601", ATLV_UTF8, NULL,        prop_send_generic, &g_szIndoor[5][0],   sizeof(g_szIndoor[5])-1, AFMT_READ_ONLY},
-	{ "Y_I0701", ATLV_UTF8, NULL,        prop_send_generic, &g_szIndoor[6][0],   sizeof(g_szIndoor[6])-1, AFMT_READ_ONLY},
-	{ "Y_I0801", ATLV_UTF8, NULL,        prop_send_generic, &g_szIndoor[7][0],   sizeof(g_szIndoor[7])-1, AFMT_READ_ONLY},
-
-	{ "H_RMT01", ATLV_UTF8, set_command1, prop_send_generic, &g_szCommand1[0],   sizeof(g_szCommand1)-1, },
-	{ "H_RMT02", ATLV_UINT, set_command2, prop_send_generic, &g_command2,        sizeof(g_command2), },
-	{ "Y_RMT01", ATLV_UTF8, set_remote1,  prop_send_generic, &g_szRemote1[0],    sizeof(g_szRemote1)-1, },
-	{ "Y_RMT02", ATLV_UINT, set_remote2,  prop_send_generic, &g_remote2,         sizeof(g_remote2), },
-
+	
+	{ "W_HW01", ATLV_UTF8, NULL,        prop_send_generic, &g_szPlatform[0],       sizeof(g_szPlatform)-1,    AFMT_READ_ONLY},
+	{ "W_INFO01", ATLV_UTF8, NULL,        prop_send_generic, &g_szModule[0],       sizeof(g_szModule)-1,    AFMT_READ_ONLY},
+	{ "W_HW01", ATLV_UTF8, NULL,        prop_send_generic, &g_szErvinfo[0],       sizeof(g_szErvinfo)-1,    AFMT_READ_ONLY},
+	{ "Y_RMT01", ATLV_UTF8, set_ervcommand, prop_send_generic, &g_szErvcommand[0],   sizeof(g_szErvcommand)-1, },
+	{ "W_RMT01", ATLV_UTF8, set_modulecommand,  prop_send_generic, &g_szModulecommand[0],    sizeof(g_szModulecommand)-1, },
+	
 	{ "SCHE_01", ATLV_SCHED, set_sched, NULL, &g_timer[0]},
 	{ "SCHE_02", ATLV_SCHED, set_sched, NULL, &g_timer[1]},
 	{ "SCHE_03", ATLV_SCHED, set_sched, NULL, &g_timer[2]},
@@ -148,36 +121,14 @@ uint8_t prop_count = (sizeof(prop_table) / sizeof(prop_table[0])) - 1;
 
 void InitProp(void)
 {
-	memset(g_szOemVer,         '\0', sizeof(g_szOemVer));
-
-	memset(g_szFwVer,          '\0', sizeof(g_szFwVer));
-	memset(g_szHost,           '\0', sizeof(g_szHost));
-
-	memset(g_szSystem,         '\0', sizeof(g_szSystem));
-	memset(&g_szOutdoor[0][0], '\0', sizeof(g_szOutdoor[0]));
-	memset(&g_szOutdoor[1][0], '\0', sizeof(g_szOutdoor[1]));
-	memset(&g_szOutdoor[2][0], '\0', sizeof(g_szOutdoor[2]));
-	memset(&g_szOutdoor[3][0], '\0', sizeof(g_szOutdoor[3]));
-
-	memset(&g_szIndoor[0][0],  '\0', sizeof(g_szIndoor[0]));
-	memset(&g_szIndoor[1][0],  '\0', sizeof(g_szIndoor[1]));
-	memset(&g_szIndoor[2][0],  '\0', sizeof(g_szIndoor[2]));
-	memset(&g_szIndoor[3][0],  '\0', sizeof(g_szIndoor[3]));
-	memset(&g_szIndoor[4][0],  '\0', sizeof(g_szIndoor[4]));
-	memset(&g_szIndoor[5][0],  '\0', sizeof(g_szIndoor[5]));
-	memset(&g_szIndoor[6][0],  '\0', sizeof(g_szIndoor[6]));
-	memset(&g_szIndoor[7][0],  '\0', sizeof(g_szIndoor[7]));
-	memset(&g_szIndoor[8][0],  '\0', sizeof(g_szIndoor[8]));
-
-	memset(g_szRemote1,  '\0', sizeof(g_szRemote1));
-	g_remote2 = 0;
-	memset(g_szCommand1, '\0', sizeof(g_szCommand1));
-	g_command2 = 0;
+	memset(g_szPlatform,          '\0', sizeof(g_szPlatform));
+	memset(g_szModule,           '\0', sizeof(g_szModule));
+	memset(g_szErvinfo,          '\0', sizeof(g_szErvinfo));
+	memset(g_szErvcommand,           '\0', sizeof(g_szErvcommand));
+	memset(g_szModulecommand,          '\0', sizeof(g_szModulecommand));
 
 	memset(g_timer, 0, sizeof(g_timer));
 
-	memcpy(g_szOemVer,     OEM_HOST_VER, strlen(OEM_HOST_VER)); 
-	memcpy(g_szFwVer,      FW_VER,       strlen(FW_VER)); 
 	memcpy(g_timer[0].name,  "SCHE_01", 7);
 	memcpy(g_timer[1].name,  "SCHE_02", 7);
 	memcpy(g_timer[2].name,  "SCHE_03", 7);
@@ -252,47 +203,39 @@ void TransProp(void)
 {
 	static U8 tran=0;
 	U8 size;                                       // size of the source unit data
-	U8 x,j;                                        // indoor list index and offset index
 
 	switch(tran)
 	{
 	case 0:                                        // host prop
-		size  = sizeof(g_host);                    // size of host unit data
-		Hex2Asc(&g_host[0], size, &g_szHost[0]);   // encode BCD
-		g_szHost[size*2] = 0x00;                   // add '\0' to the tail of string
+		size  = sizeof(g_platform);                    // size of host unit data
+		Hex2Asc(&g_platform[0], size, &g_szPlatform[0]);   // encode BCD
+		g_szPlatform[size*2] = 0x00;                   // add '\0' to the tail of string
 		break;
 	case 1:                                        // VRF system prop
-		size  = sizeof(g_sys);                     // size of VRF system data
-		Hex2Asc(&g_sys[0], size, &g_szSystem[0]);  // encode BCD to VRF system prop
-		g_szSystem[size*2] = 0x00;                 // add '\0' to the tail of string
+		size  = sizeof(g_module);                     // size of VRF system data
+		Hex2Asc(&g_module[0], size, &g_szModule[0]);  // encode BCD to VRF system prop
+		g_szModule[size*2] = 0x00;                 // add '\0' to the tail of string
 		break;
 	case 2:                                        // 1# outdoor prop
+		size  = sizeof(g_ervinfo);                     // size of VRF system data
+		Hex2Asc(&g_ervinfo[0], size, &g_szErvinfo[0]);  // encode BCD to VRF system prop
+		g_szErvinfo[size*2] = 0x00;                 // add '\0' to the tail of string
+		break;
 	case 3:                                        // 2# outdoor prop
+//		size  = sizeof(g_ervcommand);                     // size of VRF system data
+//		Hex2Asc(&g_ervcommand[0], size, &g_szErvcommand[0]);  // encode BCD to VRF system prop
+//		g_szErvcommand[size*2] = 0x00;                 // add '\0' to the tail of string
+		break;
 	case 4:                                        // 3# outdoor prop
-	case 5:                                        // 4# outdoor prop
-		size  = 0;//sizeof(g_od[tran-2]);          // size of outdoor unit data and encode bcd to VRF outdoor prop
-		Hex2Asc(&g_od[tran-2][0], size, &g_szOutdoor[tran-2][tran-2]);
-		g_szOutdoor[tran-2][size*2] = '\0';        // add '\0' to the tail of string
+//		size  = sizeof(g_modulecommand);                     // size of VRF system data
+//		Hex2Asc(&g_modulecommand[0], size, &g_szModulecommand[0]);  // encode BCD to VRF system prop
+//		g_szModulecommand[size*2] = 0x00;                 // add '\0' to the tail of string
 		break;
 	default:                                       // indoor list prop from 1 to 8
-		x = tran-6;                                // calculate the indoor list index
-		if((8*x)<g_sys[3] && g_sys[3]<=64)         // valid indoor number and list
-		{                                          // 0      0~7     [0][30x0,30x1, 30x2, 30x7]
-			for(j=0; j<8 && (8*x+j)<g_sys[3]; j++) // x      8x~8x+j [x][30xj,30xj, 30xj, 30xj]
-			{		                               // 7      56~63   [7][30x0,30x1, 30x2, 30x7]
-				size  = sizeof(g_id[8*x+j]);       // size of specified indoor unit data
-				Hex2Asc(&g_id[8*x+j][0], size, &g_szIndoor[x][30*j]);
-				g_szIndoor[x][30*j+30] = '\0';     // add '\0' to the tail of string
-			}
-		}
-		else
-		{
-			g_szIndoor[x][0] = '\0';               // invalid indoor list
-		}
 		break;
 	}
 	tran++;                                        // next prop to be converted
-	tran %= 14;                                    // turn to head
+	tran %= MAX_PROP_NUMBER;                                    // turn to head
 
 	// TODO:DEBUG
 //	static U32 SendCnt=0;
@@ -316,57 +259,30 @@ void ParseProp(U8 *command, U8 size)
 {
 	if(0x01==command[0] && size>=2)                // send specfied props to ayla cloud once
 	{
-		if(1==command[1])                          // send outdoor and all indoor units props once
+		if(1==command[1] || 3==command[1] || 4==command[1])                          // send ERV units props once
 		{
-			// outdoor unit prop
-			prop_table[PI_SYS].send_mask = valid_dest_mask;
-			prop_table[PI_SYS].echo = 1;
-			
-			// all effective indoor unit props
-			for(U8 i=0; (8*i)<g_sys[3] && i<8; i++)
-			{
-				prop_table[i+PI_IDU_01].send_mask = valid_dest_mask;
-				prop_table[i+PI_IDU_01].echo = 1;
-			}
+			// ERV unit prop
+			prop_table[PI_ERVINFO].send_mask = valid_dest_mask;
+			prop_table[PI_ERVINFO].echo = 1;
 		}
 		else if(2==command[1])                     // send system unit prop once
 		{
-			prop_table[PI_SYS].send_mask = valid_dest_mask;
-			prop_table[PI_SYS].echo = 1;
-		}
-		else if(3==command[1])                     // send indoor unit prop once
-		{
-			for(U8 i=0; (8*i)<g_sys[3] && i<8; i++)
-			{
-				prop_table[i+PI_IDU_01].send_mask = valid_dest_mask;
-				prop_table[i+PI_IDU_01].echo = 1;
-			}
-		}
-		else if(4==command[1])
-		{
-			prop_table[PI_VER].send_mask  = valid_dest_mask;
-			prop_table[PI_VER].echo = 1;
-			prop_table[PI_HOST].send_mask = valid_dest_mask;
-			prop_table[PI_HOST].echo = 1;
+			prop_table[PI_MODULE].send_mask = valid_dest_mask;
+			prop_table[PI_MODULE].echo = 1;
 		}
 		else if(0xff==command[1])                  // send host/system/all indoors props once
 		{
-			prop_table[PI_VER].send_mask  = valid_dest_mask;
-			prop_table[PI_VER].echo = 1;
-			prop_table[PI_HOST].send_mask = valid_dest_mask;
-			prop_table[PI_HOST].echo = 1;
-			prop_table[PI_SYS].send_mask  = valid_dest_mask;
-			prop_table[PI_SYS].echo = 1;
-			for(U8 i=0; (8*i)<g_sys[3] && i<8; i++)
-			{
-				prop_table[i+PI_IDU_01].send_mask = valid_dest_mask;
-				prop_table[i+PI_IDU_01].echo = 1;
-			}
+			prop_table[PI_ERVINFO].send_mask  = valid_dest_mask;
+			prop_table[PI_ERVINFO].echo = 1;
+			prop_table[PI_MODULE].send_mask = valid_dest_mask;
+			prop_table[PI_MODULE].echo = 1;
+			prop_table[PI_PLATFORM].send_mask  = valid_dest_mask;
+			prop_table[PI_PLATFORM].echo = 1;
 		}
 	}
 }
 
-void set_remote1(struct prop *prop, void *arg, void *valp, size_t len)
+void set_ervcommand(struct  prop *prop, void *arg, void *valp, size_t len)
 {
 	// arg:  prop->arg
 	// valp: tlv value point
@@ -382,47 +298,18 @@ void set_remote1(struct prop *prop, void *arg, void *valp, size_t len)
 	if(len<1)
 		return;
 
-	if(len > sizeof(g_szRemote1)-1)                // check string length maximum
-		len = sizeof(g_szRemote1)-1;
-	memcpy(&g_szRemote1[0],valp,len);              // copy receiver buffer to prop destination
-	g_szRemote1[len] = '\0';                       // don't forget the last '\0'
+	if(len > sizeof(g_szErvcommand)-1)                // check string length maximum
+		len = sizeof(g_szErvcommand)-1;
+	memcpy(&g_szErvcommand[0],valp,len);              // copy receiver buffer to prop destination
+	g_szErvcommand[len] = '\0';                       // don't forget the last '\0'
 
-	if(len> sizeof(g_remote)*2)                    // check matching half length of the string with the data size 
-		len = sizeof(g_remote)*2;
+	if(len> sizeof(g_ervcommand)*2)                    // check matching half length of the string with the data size 
+		len = sizeof(g_ervcommand)*2;
 
-	len = Asc2Hex(g_szRemote1, len, g_remote);     // convert string to hexadecimal
-	taskVRF->ParseRemote(g_remote,len);            // call the routine that parse remote control of vrf task
+	len = Asc2Hex(g_szErvcommand, len, g_ervcommand);     // convert string to hexadecimal
+	taskVRF->ParseRemote(g_ervcommand,len);            // call the routine that parse remote control of vrf task
 }
-
-void set_remote2(struct prop *prop, void *arg, void *valp, size_t len)
-{
-	// arg:  prop->arg
-	// valp: tlv value point
-	// len:  tlv value len
-	
-	// do nothing in the first 30 seconds after wifi module connectted to ads
-	U32 timeSpan = clock_utc() - clock_boot_utc_time;
-	if(timeSpan<30)
-	{
-		return;
-	}
-
-	if (len != sizeof(U32))                        // check the length
-		return;
-
-	g_remote2 = *(U32 *)valp;                      // cast pointer object to uint32 number
-
-	// convert uint32(remote command) to 4 bytes,plus one byte for type
-	g_remote[0] = XRMT_A;                          // remote control A
-	g_remote[1] = HIBYTE(HIWORD(g_remote2));       // first byte
-	g_remote[2] = LOBYTE(HIWORD(g_remote2));       // second byte
-	g_remote[3] = HIBYTE(LOWORD(g_remote2));       // third byte
-	g_remote[4] = LOBYTE(LOWORD(g_remote2));       // fourth byte
-	
-	taskVRF->ParseRemote(g_remote,5);              // call the routine that parse remote control of vrf task
-}
-
-void set_command1(struct prop *prop, void *arg, void *valp, size_t len)
+void set_modulecommand(struct prop *prop, void *arg, void *valp, size_t len)
 {
 	// arg:  prop->arg
 	// valp: tlv value point
@@ -438,66 +325,28 @@ void set_command1(struct prop *prop, void *arg, void *valp, size_t len)
 	if(len<1)                                      // len must be large than 1
 		return;
 
-	if(len > sizeof(g_szCommand1)-1)               // check string length maximum
-		len = sizeof(g_szCommand1)-1;
-	memcpy(&g_szCommand1[0],valp,len);             // copy receiver buffer to prop destination
-	g_szCommand1[len] = '\0';                      // don't forget the last '\0'
+	if(len > sizeof(g_szModulecommand)-1)               // check string length maximum
+		len = sizeof(g_szModulecommand)-1;
+	memcpy(&g_szModulecommand[0],valp,len);             // copy receiver buffer to prop destination
+	g_szModulecommand[len] = '\0';                      // don't forget the last '\0'
 
-	if(len> sizeof(g_command)*2)                   // check matching half length of the string with the data size
-		len = sizeof(g_command)*2;
-	len=Asc2Hex(g_szCommand1, len, g_command);     // convert string to hexadecimal and check bcc
-
-	if(0x01==g_command[0])	                       // host cmd(reset host/reset wifi module)
-	{
-		taskHost->ParseCommand((U8*)&g_command[1], len-1);
-	}
-	else if(0x02==g_command[0])	                   // prop cmd, send props(all/specified) to ayla cloud once
-	{
-		ParseProp((U8*)&g_command[1], len-1);
-	}
-	else if(0x03==g_command[0])
-	{
-		taskWifi->ParseConf((U8*)&g_command[1], len-1);
-	}
-}
-
-void set_command2(struct prop *prop, void *arg, void *valp, size_t len)
-{
-	// arg:  prop->arg
-	// valp: tlv value point
-	// len:  tlv value len
+	if(len> sizeof(g_modulecommand)*2)                   // check matching half length of the string with the data size
+		len = sizeof(g_modulecommand)*2;
+	len=Asc2Hex(g_szModulecommand, len, g_modulecommand);     // convert string to hexadecimal and check bcc
 	
-	// do nothing in the first 30 seconds after wifi module connectted to ads
-	U32 timeSpan = clock_utc() - clock_boot_utc_time;
-	if(timeSpan<30)
+	if(0x01==g_modulecommand[0])	                       // host cmd(reset host/reset wifi module)
 	{
-		return;
+		taskHost->ParseCommand((U8*)&g_modulecommand[1], len-1);
 	}
-
-	if (len != sizeof(U32))                        // check the length
-		return;
-
-	g_command2 = *(U32 *)valp;                     // cast pointer object to uint32 number
-
-	g_command[0] = HIBYTE(HIWORD(g_command2));     // first byte
-	g_command[1] = LOBYTE(HIWORD(g_command2));     // second byte
-	g_command[2] = HIBYTE(LOWORD(g_command2));     // third byte
-	g_command[3] = LOBYTE(LOWORD(g_command2));     // fourth byte
-
-	if(0x01==g_command[0])	                       // host cmd(reset host/reset wifi module)
+	else if(0x02==g_modulecommand[0])	                   // prop cmd, send props(all/specified) to ayla cloud once
 	{
-		taskHost->ParseCommand((U8*)&g_command[1], 3);
+		ParseProp((U8*)&g_modulecommand[1], len-1);
 	}
-	else if(0x02==g_command[0])	                   // prop cmd, send props(all/specified) to ayla cloud once
+	else if(0x03==g_modulecommand[0])
 	{
-		ParseProp((U8*)&g_command[1], 3);
-	}
-	else if(0x03==g_command[0])
-	{
-		taskWifi->ParseConf((U8*)&g_command[1], 3);
+		taskWifi->ParseConf((U8*)&g_modulecommand[1], len-1);
 	}
 }
-
 void set_sched(struct prop *prop, void *arg, void *valp, size_t len)
 {
 	if(len>SCHED_TLV_LEN)                          // check sched_prop length maximum
@@ -518,13 +367,12 @@ void XApp_Init(void)
 	g_led3 = 0xff;	                               // led3 automatic mode
 
 	// initialize protocol data
-	memset(g_host,    sizeof(g_host),   0);        // Host data
-	memset(g_sys,     sizeof(g_sys),    0);        // VRF system data
-	memset(g_od,      sizeof(g_od),     0);        // VRF outdoor data
-	memset(g_id,      sizeof(g_id),     0);        // VRF indoor data
-	memset(g_remote,  sizeof(g_remote), 0);        // VRF remote control data
-	memset(g_command, sizeof(g_command),0);        // Host command data
-
+	memset(g_platform,    sizeof(g_platform),   0);        // Host data
+	memset(g_module,     sizeof(g_module),    0);        // VRF system data
+	memset(g_ervinfo,      sizeof(g_ervinfo),     0);        // VRF outdoor data
+	memset(g_ervcommand,      sizeof(g_ervcommand),     0);        // VRF indoor data
+	memset(g_modulecommand,  sizeof(g_modulecommand), 0);        // VRF remote control data
+	
 	// initialize protocol prop
 	InitProp();
 
