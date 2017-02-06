@@ -18,6 +18,8 @@ typedef unsigned int    U32;
 typedef unsigned char   BIT;
 typedef unsigned int    BOOL;
 
+#define DEBUG_LOG     1   //output debug information via RS485 interface
+		
 #ifndef NULL
 	#define NULL      (void *) 0
 #endif

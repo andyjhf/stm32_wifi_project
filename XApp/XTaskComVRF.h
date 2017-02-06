@@ -54,7 +54,9 @@ public:
 public:
 	void InitTask(void);
 	void ParseRemote(U8 *szRemote, U8 size);
-
+#if DEBUG_LOG == 1
+	void debug(void);
+#endif
 	virtual U16 OnNewSend();
 	virtual U16 OnNewRecv();
 
@@ -72,6 +74,9 @@ private:
 
 	U16 m_errCnt;
 	U8	m_sendSlaveSddr;
+#if DEBUG_LOG == 1
+	U8 m_debug;
+#endif
 };
 
 #ifdef __cplusplus

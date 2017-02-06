@@ -19,6 +19,9 @@ CXTaskComVRF::CXTaskComVRF(void):CMSerial()
 	//m_ctrlCmd
 	m_queue   = new CMQueue(sizeof(tagXERVCtrlCmd),128);
 	m_errCnt  = 0;
+#if DEBUG_LOG == 1
+	m_debug = 0;
+#endif
 }
 
 CXTaskComVRF::~CXTaskComVRF(void)
@@ -39,6 +42,9 @@ void CXTaskComVRF::InitTask(void)
 	//m_queue = new CMQueue(sizeof(tagXCtrlCmd),128);
 
 	m_errCnt  = 0;
+#if DEBUG_LOG == 1
+	m_debug = 0;
+#endif
 }
 
 U16 CXTaskComVRF::OnNewSend()
@@ -62,7 +68,17 @@ U16 CXTaskComVRF::OnNewSend()
 		m_txLen = 11;
 		
 		m_sendSlaveSddr = m_txBuf[0];
-	}else{
+	}
+#if DEBUG_LOG == 1
+	else if(m_debug == 1)
+	{
+		m_debug = 0;
+		m_txBuf[0] = 0x02;
+		memcpy(&m_txBuf[1],g_szErvinfo,30);
+		m_txLen = 31;
+	}
+#endif
+	else{
 		m_txBuf[0] = 1;																				//slave address
 		m_txBuf[1] = X_READ;																	//Fuctions
 		m_txBuf[2] = 0x00;																		//Starting address HI
@@ -70,7 +86,7 @@ U16 CXTaskComVRF::OnNewSend()
 		m_txBuf[4] = 0x00;																		//Num of Registers Hi
 		m_txBuf[5] = 0x0a;																		//Num of Registers LO
 
-		U16 usCRC16=IDCOM_CRC16(&m_txBuf[0], 0x09);
+		U16 usCRC16=IDCOM_CRC16(&m_txBuf[0], 0x06);
 		m_txBuf[6] = HIBYTE(usCRC16);													//CRC HI
 		m_txBuf[7] = LOBYTE(usCRC16);													//CRC LO
 
@@ -99,14 +115,14 @@ U16 CXTaskComVRF::OnNewRecv()
 		
 	}else if(m_recvCmd == X_READ)
 	{
-		m_recvParaCnt = m_rxBuf[F_BYTECOUNT]/2;
+		m_recvParaCnt = m_rxBuf[F_BYTECOUNT];
 		U8 *data = &m_rxBuf[F_BYTECOUNT+1];
 		U16 param;
 		g_ervinfo[ERVINFO_INDEX_GROUP_NUM] = m_rxBuf[F_SLAVEADDR];
-		for(U8 i=0;i<m_recvParaCnt;i++)
+		for(U8 i=0;i<m_recvParaCnt;i+=2)
 		{
 			param = data[i]*256 + data[i+1];
-			switch(i)             
+			switch(i/2)             
 			{
 				case REG_ADDR_POWER:
 				{
@@ -363,3 +379,9 @@ void CXTaskComVRF::onError(void)
 		m_queue->Clear();                          // clear remote ctrl list
 	}
 }
+#if DEBUG_LOG == 1
+void CXTaskComVRF::debug(void)
+{
+	m_debug = 1;
+}
+#endif

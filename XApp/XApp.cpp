@@ -392,7 +392,10 @@ void XApp_Run(void)
 	static U32 curTick=0;                          // current tick time(ms)
 	static U32 taskTick[3]={0,0,0};                // job rotation tick time(ms)
 	static U8  slot=0;                             // job rotation No
-
+#if DEBUG_LOG == 1
+	static U32 debug_tick = 0;
+	static U32 debug_cnt=0;
+#endif
 	for (;;)                                       // main loop
 	{
 		curTick=HAL_GetTick();                     // current tick time
@@ -423,5 +426,17 @@ void XApp_Run(void)
 		{
 			taskWifi->DetectFactory();             // detect factory reset 
 		}
+#if DEBUG_LOG == 1
+		if(curTick != debug_tick)
+		{	
+			debug_cnt++;
+			debug_tick = curTick;
+		}
+		if(debug_cnt > 10000)
+		{
+			debug_cnt = 0;
+			taskVRF->debug();
+		}
+#endif
 	}
 }
