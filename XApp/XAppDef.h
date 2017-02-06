@@ -28,7 +28,7 @@
 #define POWER_STATE								0x04
 #define SLEEP_STATE								0x20
 #define FAN_STATE									0x0e
-#define FAULT_STATE								0x80
+#define FAULT_STATE								0x08
 #define HEATING_STATE							0x02
 #define CLEAN_STATE								0x20
 
