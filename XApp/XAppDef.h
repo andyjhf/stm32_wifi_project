@@ -22,6 +22,8 @@
 #include "XTaskComVRF.h"
 #include "XTaskComWifi.h"
 
+#define  SZ_OEM_VER_SIZE  50                       // oem host version prop buffer size
+
 #define OD_DAT_LINK       				0x01                     // ERV link state
 #define OD_DAT_READY      				0x80                     // ERV ready state
 
@@ -108,8 +110,8 @@
 //#define  OEM_HOST_VER     "YES_V1.04"            // oem host template version
 //#define  FW_VER           "V0.05_20160517"       // host software version
 
-#define  OEM_HOST_VER     "YES_V1.00"              // oem host template version
-#define  FW_VER           "V1.00_20160822"         // host software version
+#define  OEM_HOST_VER     "ERV 0.1"              // oem host template version
+//#define  FW_VER           "V1.00_20160822"         // host software version
 
 
 #endif /* __APP_XAPPDEF_H */

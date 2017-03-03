@@ -21,6 +21,7 @@ extern U8  g_ervcommand[ERVCMD_SIZE];
 extern U8  g_modulecommand[MODULECMD_SIZE];
 		
 // global protocol prop
+extern U8  g_szOemVer[SZ_OEM_VER_SIZE+1];          // oem host template version prop
 extern U8  g_szPlatform[SZ_PLATFORM_SIZE+1]; 
 extern U8  g_szModule[SZ_MODULE_SIZE+1];
 extern U8  g_szErvinfo[SZ_ERVINFO_SIZE+1];

@@ -14,6 +14,7 @@ U8  g_ervcommand[ERVCMD_SIZE];
 U8  g_modulecommand[MODULECMD_SIZE];
 
 // global protocol prop
+U8  g_szOemVer[SZ_OEM_VER_SIZE+1];                 // oem Host template version prop
 U8  g_szPlatform[SZ_PLATFORM_SIZE+1]; 
 U8  g_szModule[SZ_MODULE_SIZE+1];
 U8  g_szErvinfo[SZ_ERVINFO_SIZE+1];
@@ -28,15 +29,17 @@ CXTaskHost    *taskHost = NULL;                    // Host processing task
 CXTaskComWifi *taskWifi = NULL;                    // Module communication task
 
 // index of prop table
-#define PI_PLATFORM       0                             // WIFI prop index of table
-#define PI_MODULE      		1                             // Host prop index of table
-#define PI_ERVINFO       	2                             // ERV sytem prop index of table
-#define PI_ERVCOMMAND    	3                             // ERV control prop index of table
-#define PI_MODULECOMMAND  4                             // wifi control prop index of table
-#define MAX_PROP_NUMBER		5
+#define PI_OEM_HOST_VERSION       0                             // WIFI prop index of table
+#define PI_PLATFORM       				1                             // WIFI prop index of table
+#define PI_MODULE      						2                             // Host prop index of table
+#define PI_ERVINFO       					3                             // ERV sytem prop index of table
+#define PI_ERVCOMMAND    					4                             // ERV control prop index of table
+#define PI_MODULECOMMAND  				5                             // wifi control prop index of table
+#define MAX_PROP_NUMBER						6
 
 // global prop table
 struct prop prop_table[] = {
+	{ AYLA_VER_NAME, ATLV_UTF8, NULL,    prop_send_generic, &g_szOemVer[0],      sizeof(g_szOemVer)-1,    AFMT_READ_ONLY},
 	
 	{ "W_HW01", ATLV_UTF8, NULL,        prop_send_generic, &g_szPlatform[0],       sizeof(g_szPlatform)-1,    AFMT_READ_ONLY},
 	{ "W_INFO01", ATLV_UTF8, NULL,        prop_send_generic, &g_szModule[0],       sizeof(g_szModule)-1,    AFMT_READ_ONLY},
@@ -121,6 +124,7 @@ uint8_t prop_count = (sizeof(prop_table) / sizeof(prop_table[0])) - 1;
 
 void InitProp(void)
 {
+	memset(g_szOemVer,         '\0', sizeof(g_szOemVer));
 	memset(g_szPlatform,          '\0', sizeof(g_szPlatform));
 	memset(g_szModule,           '\0', sizeof(g_szModule));
 	memset(g_szErvinfo,          '\0', sizeof(g_szErvinfo));
@@ -129,6 +133,7 @@ void InitProp(void)
 
 	memset(g_timer, 0, sizeof(g_timer));
 
+	memcpy(g_szOemVer,     OEM_HOST_VER, strlen(OEM_HOST_VER)); 
 	memcpy(g_timer[0].name,  "SCHE_01", 7);
 	memcpy(g_timer[1].name,  "SCHE_02", 7);
 	memcpy(g_timer[2].name,  "SCHE_03", 7);
