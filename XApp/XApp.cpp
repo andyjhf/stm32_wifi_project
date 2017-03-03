@@ -24,7 +24,7 @@ U8  g_szModulecommand[SZ_MODULECMD_SIZE+1];
 struct sched_prop g_timer[64];                     // schedule array props
 
 // global task object
-CXTaskComVRF  *taskVRF  = NULL;                    // ERV communication task
+CXTaskComERV  *taskERV  = NULL;                    // ERV communication task
 CXTaskHost    *taskHost = NULL;                    // Host processing task
 CXTaskComWifi *taskWifi = NULL;                    // Module communication task
 
@@ -216,24 +216,24 @@ void TransProp(void)
 		Hex2Asc(&g_platform[0], size, &g_szPlatform[0]);   // encode BCD
 		g_szPlatform[size*2] = 0x00;                   // add '\0' to the tail of string
 		break;
-	case 1:                                        // VRF system prop
-		size  = sizeof(g_module);                     // size of VRF system data
-		Hex2Asc(&g_module[0], size, &g_szModule[0]);  // encode BCD to VRF system prop
+	case 1:                                        // ERV system prop
+		size  = sizeof(g_module);                     // size of ERV system data
+		Hex2Asc(&g_module[0], size, &g_szModule[0]);  // encode BCD to ERV system prop
 		g_szModule[size*2] = 0x00;                 // add '\0' to the tail of string
 		break;
 	case 2:                                        // 1# outdoor prop
-		size  = sizeof(g_ervinfo);                     // size of VRF system data
-		Hex2Asc(&g_ervinfo[0], size, &g_szErvinfo[0]);  // encode BCD to VRF system prop
+		size  = sizeof(g_ervinfo);                     // size of ERV system data
+		Hex2Asc(&g_ervinfo[0], size, &g_szErvinfo[0]);  // encode BCD to ERV system prop
 		g_szErvinfo[size*2] = 0x00;                 // add '\0' to the tail of string
 		break;
 	case 3:                                        // 2# outdoor prop
-//		size  = sizeof(g_ervcommand);                     // size of VRF system data
-//		Hex2Asc(&g_ervcommand[0], size, &g_szErvcommand[0]);  // encode BCD to VRF system prop
+//		size  = sizeof(g_ervcommand);                     // size of ERV system data
+//		Hex2Asc(&g_ervcommand[0], size, &g_szErvcommand[0]);  // encode BCD to ERV system prop
 //		g_szErvcommand[size*2] = 0x00;                 // add '\0' to the tail of string
 		break;
 	case 4:                                        // 3# outdoor prop
-//		size  = sizeof(g_modulecommand);                     // size of VRF system data
-//		Hex2Asc(&g_modulecommand[0], size, &g_szModulecommand[0]);  // encode BCD to VRF system prop
+//		size  = sizeof(g_modulecommand);                     // size of ERV system data
+//		Hex2Asc(&g_modulecommand[0], size, &g_szModulecommand[0]);  // encode BCD to ERV system prop
 //		g_szModulecommand[size*2] = 0x00;                 // add '\0' to the tail of string
 		break;
 	default:                                       // indoor list prop from 1 to 8
@@ -312,7 +312,7 @@ void set_ervcommand(struct  prop *prop, void *arg, void *valp, size_t len)
 		len = sizeof(g_ervcommand)*2;
 
 	len = Asc2Hex(g_szErvcommand, len, g_ervcommand);     // convert string to hexadecimal
-	taskVRF->ParseRemote(g_ervcommand,len);            // call the routine that parse remote control of vrf task
+	taskERV->ParseRemote(g_ervcommand,len);            // call the routine that parse remote control of erv task
 }
 void set_modulecommand(struct prop *prop, void *arg, void *valp, size_t len)
 {
@@ -373,21 +373,21 @@ void XApp_Init(void)
 
 	// initialize protocol data
 	memset(g_platform,    sizeof(g_platform),   0);        // Host data
-	memset(g_module,     sizeof(g_module),    0);        // VRF system data
-	memset(g_ervinfo,      sizeof(g_ervinfo),     0);        // VRF outdoor data
-	memset(g_ervcommand,      sizeof(g_ervcommand),     0);        // VRF indoor data
-	memset(g_modulecommand,  sizeof(g_modulecommand), 0);        // VRF remote control data
+	memset(g_module,     sizeof(g_module),    0);        // ERV system data
+	memset(g_ervinfo,      sizeof(g_ervinfo),     0);        // ERV outdoor data
+	memset(g_ervcommand,      sizeof(g_ervcommand),     0);        // ERV indoor data
+	memset(g_modulecommand,  sizeof(g_modulecommand), 0);        // ERV remote control data
 	
 	// initialize protocol prop
 	InitProp();
 
 	// construct all tasks
-	taskVRF  = new CXTaskComVRF;                   // vrf task for usart communication with outdoor and indoor units
+	taskERV  = new CXTaskComERV;                   // erv task for usart communication with outdoor and indoor units
 	taskHost = new CXTaskHost;                     // host task for sampling dip setiing, and led blink/on/off
 	taskWifi = new CXTaskComWifi;                  // wifi task for communicating with wifi module
 
 	// initialize all tasks
-	taskVRF->InitTask();                           // initialize vrf task
+	taskERV->InitTask();                           // initialize erv task
 	taskHost->InitTask();                          // initialize host task
 	taskWifi->InitTask();                          // initialize wifi task
 }
@@ -409,7 +409,7 @@ void XApp_Run(void)
 			switch(slot)                           // which job No
 			{
 				case 0:                            // job 1
-					taskVRF->DoLoop(1);            // do task of VRF communication once 1 millisecond
+					taskERV->DoLoop(1);            // do task of ERV communication once 1 millisecond
 					break;
 				case 1:                            // job 2
 					taskHost->DoLoop(1);           // do task of MCU host once 1 millisecond
@@ -440,7 +440,7 @@ void XApp_Run(void)
 		if(debug_cnt > 10000)
 		{
 			debug_cnt = 0;
-			taskVRF->debug();
+			taskERV->debug();
 		}
 #endif
 	}

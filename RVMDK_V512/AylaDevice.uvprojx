@@ -755,16 +755,6 @@
               <FilePath>..\XApp\MSerial.cpp</FilePath>
             </File>
             <File>
-              <FileName>XTaskComVRF.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\XApp\XTaskComVRF.h</FilePath>
-            </File>
-            <File>
-              <FileName>XTaskComVRF.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\XApp\XTaskComVRF.cpp</FilePath>
-            </File>
-            <File>
               <FileName>XTaskComWifi.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\XApp\XTaskComWifi.h</FilePath>
@@ -803,6 +793,16 @@
               <FileName>main .cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\XApp\main .cpp</FilePath>
+            </File>
+            <File>
+              <FileName>XTaskComERV.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\XApp\XTaskComERV.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>XTaskComERV.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\XApp\XTaskComERV.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1557,16 +1557,6 @@
               <FilePath>..\XApp\MSerial.cpp</FilePath>
             </File>
             <File>
-              <FileName>XTaskComVRF.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\XApp\XTaskComVRF.h</FilePath>
-            </File>
-            <File>
-              <FileName>XTaskComVRF.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\XApp\XTaskComVRF.cpp</FilePath>
-            </File>
-            <File>
               <FileName>XTaskComWifi.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\XApp\XTaskComWifi.h</FilePath>
@@ -1605,6 +1595,16 @@
               <FileName>main .cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\XApp\main .cpp</FilePath>
+            </File>
+            <File>
+              <FileName>XTaskComERV.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\XApp\XTaskComERV.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>XTaskComERV.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\XApp\XTaskComERV.h</FilePath>
             </File>
           </Files>
         </Group>

@@ -45,11 +45,11 @@ typedef struct tagXRemoteCmd{                   // struct of ERV control command
 	U8  data;                                   // erv data
 }XRemoteCmd;
 
-class CXTaskComVRF: public CMSerial
+class CXTaskComERV: public CMSerial
 {
 public:
-	CXTaskComVRF(void);
-	~CXTaskComVRF(void);
+	CXTaskComERV(void);
+	~CXTaskComERV(void);
 
 public:
 	void InitTask(void);

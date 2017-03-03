@@ -18,8 +18,8 @@ CXTaskHost::CXTaskHost(void)
 
 	m_wifiReady = 0;                               // 1: wifi module ready(started)
 	m_wifiLink  = 0;                               // 1: wifi module linked to ayla cloud
-	m_vrfReady  = 0;                               // 1: vrf comm ready
-	m_vrfLink   = 0;                               // 1: vrf outdoor broadcast it's data
+	m_ervReady  = 0;                               // 1: erv comm ready
+	m_ervLink   = 0;                               // 1: erv outdoor broadcast it's data
 }
 
 CXTaskHost::~CXTaskHost(void)
@@ -43,8 +43,8 @@ void CXTaskHost::InitTask(void)
 
 	m_wifiReady = 0;                               // 1: wifi module ready(started)
 	m_wifiLink  = 0;                               // 1: wifi module linked to ayla cloud
-	m_vrfReady  = 0;                               // 1: vrf comm ready
-	m_vrfLink   = 0;                               // 1: vrf outdoor broadcast it's data
+	m_ervReady  = 0;                               // 1: erv comm ready
+	m_ervLink   = 0;                               // 1: erv outdoor broadcast it's data
 }
 
 void CXTaskHost::DoLoop(U16 tmOnce)
@@ -59,8 +59,8 @@ void CXTaskHost::DoLoop(U16 tmOnce)
 	// led indicator(blink quickly)
 	if(m_blinkCnt1>=m_tmBlink1)
 	{
-		m_vrfReady = (g_ervinfo[ERVINFO_INDEX_BASE_STATE] & OD_DAT_READY)? 1:0;       // vrf ready state
-		m_vrfLink  = (g_ervinfo[ERVINFO_INDEX_BASE_STATE] & OD_DAT_LINK)? 1:0;       // vrf link state
+		m_ervReady = (g_ervinfo[ERVINFO_INDEX_BASE_STATE] & OD_DAT_READY)? 1:0;       // erv ready state
+		m_ervLink  = (g_ervinfo[ERVINFO_INDEX_BASE_STATE] & OD_DAT_LINK)? 1:0;       // erv link state
 		m_blinkCnt1 = 0;                           // clear quick blinking counter
 		if(0xff==g_led2)                           // LED2 is in auto mode
 		{
@@ -75,7 +75,7 @@ void CXTaskHost::DoLoop(U16 tmOnce)
 		}
 		if(0xff==g_led3)                           // LED3 is in auto mode
 		{
-			if(0==m_vrfReady)                      // VRF Comm ready state is not OK
+			if(0==m_ervReady)                      // ERV Comm ready state is not OK
 			{
 				LED_Toggle(LED3);                  // keep led3 blink by the interval of 250ms
 			}
@@ -89,8 +89,8 @@ void CXTaskHost::DoLoop(U16 tmOnce)
 	// led indicator(blink slowly)
 	if(m_blinkCnt2>=m_tmBlink2)
 	{
-		m_vrfReady = (g_ervinfo[ERVINFO_INDEX_BASE_STATE] & OD_DAT_READY)? 1:0;       // vrf ready state
-		m_vrfLink  = (g_ervinfo[ERVINFO_INDEX_BASE_STATE] & OD_DAT_LINK)? 1:0;       // vrf link state
+		m_ervReady = (g_ervinfo[ERVINFO_INDEX_BASE_STATE] & OD_DAT_READY)? 1:0;       // erv ready state
+		m_ervLink  = (g_ervinfo[ERVINFO_INDEX_BASE_STATE] & OD_DAT_LINK)? 1:0;       // erv link state
 		m_blinkCnt2=0;                             // clear slow blinking counter
 		if(1==m_wifiReady && 0xff==g_led2)         // wifi ready state is OK and led2 is in auto mode
 		{
@@ -103,9 +103,9 @@ void CXTaskHost::DoLoop(U16 tmOnce)
 				LED_Toggle(LED2);                  // toggle led2(blink)
 			}
 		}
-		if(1==m_vrfReady && 0xff==g_led3)
+		if(1==m_ervReady && 0xff==g_led3)
 		{
-			if(1==m_vrfLink)
+			if(1==m_ervLink)
 			{
 				LED_Set(LED3, LED_ON);             // keep led3 on
 			}

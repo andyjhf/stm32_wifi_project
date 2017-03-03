@@ -43,7 +43,7 @@ void USART6_Init(void)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	UART_HandleTypeDef UartHandle;
 
-	// Configure VRF_RS485-DE pin
+	// Configure ERV_RS485-DE pin
 	RCC->AHB1ENR |= (RS485_DE_CLK);
 	GPIO_InitStructure.Pin   = RS485_DE_PIN;
 	GPIO_InitStructure.Mode  = GPIO_MODE_OUTPUT_PP; 
@@ -51,7 +51,7 @@ void USART6_Init(void)
 	GPIO_InitStructure.Speed = GPIO_SPEED_FAST;
 	HAL_GPIO_Init(RS485_DE_PORT, &GPIO_InitStructure);
 
-	// Driver VRF_RS485-DE pin low first(RS485 chip receive state)
+	// Driver ERV_RS485-DE pin low first(RS485 chip receive state)
 	HAL_GPIO_WritePin(RS485_DE_PORT, RS485_DE_PIN, GPIO_PIN_RESET);
 
 	// Connect RX pin to USART6_RX, enable PINx alternate functions

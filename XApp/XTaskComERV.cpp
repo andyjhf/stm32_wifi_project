@@ -1,4 +1,4 @@
-#include "XTaskComVRF.h"
+#include "XTaskComERV.h"
 #include "XApp.h"
 
 // note:
@@ -6,7 +6,7 @@
 //#define ID_NOACK_CNT	(80/CYCLE_ID)
 //#define	ID_PRESEND_CNT	(10/CYCLE_ID)
 
-CXTaskComVRF::CXTaskComVRF(void):CMSerial()
+CXTaskComERV::CXTaskComERV(void):CMSerial()
 {
 	m_tmRxOver = 5;
 	m_tmNoAck  = 200;
@@ -24,11 +24,11 @@ CXTaskComVRF::CXTaskComVRF(void):CMSerial()
 #endif
 }
 
-CXTaskComVRF::~CXTaskComVRF(void)
+CXTaskComERV::~CXTaskComERV(void)
 {
 }
 
-void CXTaskComVRF::InitTask(void)
+void CXTaskComERV::InitTask(void)
 {
 	m_tmRxOver = 5;
 	m_tmNoAck  = 200;
@@ -47,7 +47,7 @@ void CXTaskComVRF::InitTask(void)
 #endif
 }
 
-U16 CXTaskComVRF::OnNewSend()
+U16 CXTaskComERV::OnNewSend()
 {
 	if(m_queue->Pop(&m_ervctrlCmd))
 	{
@@ -97,7 +97,7 @@ U16 CXTaskComVRF::OnNewSend()
 	return 1;
 }
 
-U16 CXTaskComVRF::OnNewRecv()
+U16 CXTaskComERV::OnNewRecv()
 {
 	if (0==checkFrame())                           // 1.check frame(length,header/tail,CRC)
 	{
@@ -288,7 +288,7 @@ U16 CXTaskComVRF::OnNewRecv()
 	return 1;
 }
 
-void CXTaskComVRF::ParseRemote(U8 *remote, U8 size)
+void CXTaskComERV::ParseRemote(U8 *remote, U8 size)
 {
 	XERVCtrlCmd	 ERVCtrlCmd;
 	XRemoteCmd   RemoteCmd;
@@ -330,7 +330,7 @@ void CXTaskComVRF::ParseRemote(U8 *remote, U8 size)
 	}
 }
 
-U8 CXTaskComVRF::checkFrame(void)
+U8 CXTaskComERV::checkFrame(void)
 {
 	// check frame length
 	if(m_rxLen<8)
@@ -351,7 +351,7 @@ U8 CXTaskComVRF::checkFrame(void)
 	return 1;
 }
 
-void CXTaskComVRF::onError(void)
+void CXTaskComERV::onError(void)
 {
 	if(m_errCnt<0xffff)
 		m_errCnt++;
@@ -380,7 +380,7 @@ void CXTaskComVRF::onError(void)
 	}
 }
 #if DEBUG_LOG == 1
-void CXTaskComVRF::debug(void)
+void CXTaskComERV::debug(void)
 {
 	m_debug = 1;
 }

@@ -19,7 +19,7 @@
 
 #include "MUtility.h"
 #include "XTaskHost.h"
-#include "XTaskComVRF.h"
+#include "XTaskComERV.h"
 #include "XTaskComWifi.h"
 
 #define  SZ_OEM_VER_SIZE  50                       // oem host version prop buffer size

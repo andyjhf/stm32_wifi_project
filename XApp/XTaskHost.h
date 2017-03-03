@@ -36,8 +36,8 @@ private:
 
 	U8 m_wifiReady;                                // 1: wifi module ready(started)
 	U8 m_wifiLink;                                 // 1: wifi module linked to ayla cloud
-	U8 m_vrfReady;                                 // 1: vrf communication frame check state(timeout/crc error)
-	U8 m_vrfLink;                                  // 1: vrf outdoor online flag
+	U8 m_ervReady;                                 // 1: erv communication frame check state(timeout/crc error)
+	U8 m_ervLink;                                  // 1: erv outdoor online flag
 
 public:
 	U16 m_PowerCnt;                                // 5 seconds counter after mcu reset
