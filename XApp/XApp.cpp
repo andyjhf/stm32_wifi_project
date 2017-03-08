@@ -372,11 +372,11 @@ void XApp_Init(void)
 	g_led3 = 0xff;	                               // led3 automatic mode
 
 	// initialize protocol data
-	memset(g_platform,    sizeof(g_platform),   0);        // Host data
-	memset(g_module,     sizeof(g_module),    0);        // ERV system data
-	memset(g_ervinfo,      sizeof(g_ervinfo),     0);        // ERV outdoor data
-	memset(g_ervcommand,      sizeof(g_ervcommand),     0);        // ERV indoor data
-	memset(g_modulecommand,  sizeof(g_modulecommand), 0);        // ERV remote control data
+	memset(g_platform,0,    sizeof(g_platform));        // Host data
+	memset(g_module, 0,    sizeof(g_module));        // ERV system data
+	memset(g_ervinfo, 0,     sizeof(g_ervinfo));        // ERV outdoor data
+	memset(g_ervcommand, 0,     sizeof(g_ervcommand));        // ERV indoor data
+	memset(g_modulecommand, 0, sizeof(g_modulecommand));        // ERV remote control data
 	
 	// initialize protocol prop
 	InitProp();

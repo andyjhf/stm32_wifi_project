@@ -36,7 +36,7 @@ typedef struct tagXERVCtrlCmd{                    // struct of ERV control comma
 	U8  addr;                                      // ERV addr
 	U8  rw_mode;                                   // mode bus mode
 	U16 reg_addr;                                  // register addr
-	U16 reg_data;
+	U16 reg_data;                                  // register data
 }XERVCtrlCmd;
 
 typedef struct tagXRemoteCmd{                   // struct of ERV control command 
