@@ -34,6 +34,7 @@ int main(int argc, char **argv)
 	USART6_Init();                                 // config usart6 peripheral and pins
 	USART1_Init();                                 // config usart1 peripheral and pins
 	I2C_Init();                                    // config I2C1 peripheral and pins
+	RTC_Init();																		 // config RTC peripheral
 	IWDG_Init();                                   // config independent watchdog
 
 #ifdef DEBUG

@@ -8,6 +8,7 @@
 #include "driver_uart6.h"
 #include "driver_iwdg.h"
 #include "driver_i2c1.h"
+#include "driver_rtc.h"
 
 #include "ayla_conf_access.h"
 #include "ayla_clock.h"
@@ -21,6 +22,7 @@
 #include "XTaskHost.h"
 #include "XTaskComERV.h"
 #include "XTaskComWifi.h"
+#include "XTaskSensorData.h"
 
 #define  SZ_OEM_VER_SIZE  50                       // oem host version prop buffer size
 

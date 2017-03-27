@@ -27,6 +27,7 @@ struct sched_prop g_timer[64];                     // schedule array props
 CXTaskComERV  *taskERV  = NULL;                    // ERV communication task
 CXTaskHost    *taskHost = NULL;                    // Host processing task
 CXTaskComWifi *taskWifi = NULL;                    // Module communication task
+CXTaskSensorData *taskSensor = NULL;               // sensor data task
 
 // index of prop table
 #define PI_OEM_HOST_VERSION       0                             // WIFI prop index of table
@@ -385,18 +386,21 @@ void XApp_Init(void)
 	taskERV  = new CXTaskComERV;                   // erv task for usart communication with outdoor and indoor units
 	taskHost = new CXTaskHost;                     // host task for sampling dip setiing, and led blink/on/off
 	taskWifi = new CXTaskComWifi;                  // wifi task for communicating with wifi module
+	taskSensor = new CXTaskSensorData;
 
 	// initialize all tasks
 	taskERV->InitTask();                           // initialize erv task
 	taskHost->InitTask();                          // initialize host task
 	taskWifi->InitTask();                          // initialize wifi task
+	taskSensor->InitTask();												 // initialize sensor task
 }
 
 void XApp_Run(void)
 {
 	static U32 curTick=0;                          // current tick time(ms)
-	static U32 taskTick[3]={0,0,0};                // job rotation tick time(ms)
+	static U32 taskTick[4]={0,0,0,0};                // job rotation tick time(ms)
 	static U8  slot=0;                             // job rotation No
+
 #if DEBUG_LOG == 1
 	static U32 debug_tick = 0;
 	static U32 debug_cnt=0;
@@ -415,13 +419,16 @@ void XApp_Run(void)
 					taskHost->DoLoop(1);           // do task of MCU host once 1 millisecond
 					break;
 				case 2:                            // job 3
+					taskSensor->DoLoop(1);                   // transfer one data to a prop by sequence
+					break;
+				case 3:                            // job 3
 					TransProp();                   // transfer one data to a prop by sequence
 					break;
 			}
 			taskTick[slot] = curTick;              // save job's tick time
 		}
 		slot++;                                    // next job
-		slot %= 3;                                 // turn to head job
+		slot %= 4;                                 // turn to head job
 
 		if(taskHost->m_PowerCnt>=5000)             // after 5000ms 
 		{
@@ -431,6 +438,7 @@ void XApp_Run(void)
 		{
 			taskWifi->DetectFactory();             // detect factory reset 
 		}
+		
 #if DEBUG_LOG == 1
 		if(curTick != debug_tick)
 		{	

@@ -41,9 +41,9 @@
 #include "ayla_xxx.h"
 #include "ayla_sched.h"
 
-u32 clock_boot_rel_time;	/* time of startup according to RTC */
+u32 clock_boot_rel_time = 0;	/* time of startup according to RTC */
 u32 sched_next_event_tick;	/* tick count when next event will happen */
-u32 clock_boot_utc_time;    // zhaojianchuan 20016.05.16
+u32 clock_boot_utc_time = 0;    // zhaojianchuan 20016.05.16
 
 /*
  * Converts from network byte order to host byte order
