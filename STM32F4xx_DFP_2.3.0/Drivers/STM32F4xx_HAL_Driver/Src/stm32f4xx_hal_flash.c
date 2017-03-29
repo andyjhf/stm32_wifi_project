@@ -563,6 +563,19 @@ FLASH_ErrorTypeDef HAL_FLASH_GetError(void)
 HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
 { 
   uint32_t tickstart = 0;
+	uint32_t index;
+#ifdef LOADER_FUNCTION
+	while((__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY) != RESET) && (Timeout != 0x00))
+  { 
+		/* Delay */
+		for (index = 0; index<1000; index++);
+  }
+	if(Timeout == 0x00 )
+  {
+    return HAL_TIMEOUT;
+  }
+#else
+	
   /* Wait for the FLASH operation to complete by polling on BUSY flag to be reset.
      Even if the FLASH operation fails, the BUSY flag will be reset and an error
      flag will be set */
@@ -579,7 +592,8 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
       }
     } 
   }
-  
+#endif
+	
   if(__HAL_FLASH_GET_FLAG((FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | \
                            FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR | FLASH_FLAG_RDERR)) != RESET)
   {

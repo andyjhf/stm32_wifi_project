@@ -6,7 +6,7 @@
 #ifdef __cplusplus
 	extern "C" {
 #endif
-		
+extern const char version[16];	
 // global variables
 extern U8 g_wifiReset;                             // 1: request to reset wifi module
 extern U8 g_hostReset;                             // 1: request to reset self-host
@@ -37,7 +37,7 @@ void TransProp(void);                              // hex to string for props
 void ParseProp(U8 *command, U8 size);              // parse the WiFi-host command
 
 void set_sched(struct prop *prop, void *arg, void *valp, size_t len);
-
+int send_version(struct prop *prop, void *arg);
 void set_ervcommand(struct  prop *prop, void *arg, void *valp, size_t len);
 void set_modulecommand(struct prop *prop, void *arg, void *valp, size_t len);
 

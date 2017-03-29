@@ -13,12 +13,25 @@
   */
 
 #include "main.h"
-
+#ifdef DEMO_IMG_MGMT
+#include "demo_img_mgmt.h"
+#endif
 int main(int argc, char **argv)
 {
+
 	HAL_Init();                                    // STM32F4xx HAL library initialization:
 	RCC_SystemClockHSE_Config();                   // configure the System clock to 60 MHz
 	HAL_InitTick(TICK_INT_PRIORITY);               // configure the Systick to generate an interrupt each 1 msec
+#ifdef DEMO_IMG_MGMT
+	mcu_img_mgmt_init();
+	extern void *__Vectors;
+
+	/*
+	 * Make sure vector table offset is set correctly before enabling
+	 * interrupts.
+	 */
+	SCB->VTOR = (u32)&__Vectors;
+#endif
 
 	WIFI_Init();                                   // initialize all drivers of mcu peripheral
 	LED_Init(LED2);                                // config LED2 pin

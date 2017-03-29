@@ -1,5 +1,33 @@
 #include "XApp.h"
 
+#define VERSION "jhf 5"
+#ifdef DEMO_IMG_MGMT
+#include "flash_layout.h"
+#include "demo_img_mgmt.h"	
+#define BUILD_DATE ""
+#ifdef AYLA_KEIL
+
+/*
+ * Image header location is fixed.
+ */
+#define IMG_HDR_LOC		(MCU_IMG_ACTIVE + IMAGE_HDR_OFF)
+#define IMG_HDR_VER_LOC		(IMG_HDR_LOC + sizeof(struct image_hdr))
+
+const struct image_hdr __img_hdr
+			__attribute__((used))
+			__attribute((at(IMG_HDR_LOC))) = {};
+const char version[16] __attribute__((at(IMG_HDR_VER_LOC))) =
+	 VERSION " " BUILD_DATE;
+#else
+const char version[] __attribute__((section(".version"))) =
+	VERSION " " BUILD_DATE;
+#endif /* AYLA_KEIL */
+#else
+const char version[] = VERSION;
+#endif /* DEMO_IMG_MGMT || AYLA_BUILD_VERSION */
+
+//extern const char version[72];
+
 // global variables
 U8 g_wifiReset;                                    // 1: request to reset wifi module
 U8 g_hostReset;                                    // 1: request to reset self-host
@@ -48,6 +76,15 @@ struct prop prop_table[] = {
 	{ "Y_ERV01", ATLV_UTF8, NULL,        prop_send_generic, &g_szErvinfo[0],       sizeof(g_szErvinfo)-1,    AFMT_READ_ONLY},
 	{ "Y_RMT01", ATLV_UTF8, set_ervcommand, prop_send_generic, &g_szErvcommand[0],   sizeof(g_szErvcommand)-1, },
 	{ "W_RMT01", ATLV_UTF8, set_modulecommand,  prop_send_generic, &g_szModulecommand[0],    sizeof(g_szModulecommand)-1, },
+
+	{ "version", ATLV_UTF8, NULL, send_version, NULL, 0, AFMT_READ_ONLY},
+#ifdef DEMO_IMG_MGMT
+	{ "inactive_version", ATLV_UTF8, NULL, send_inactive_version, NULL,
+	  0, AFMT_READ_ONLY },
+	{ "boot_to_inactive", ATLV_BOOL, set_boot2inactive, prop_send_generic,
+	  &boot2inactive, sizeof(boot2inactive) },
+//	{ "oem_host_version", ATLV_UTF8, NULL, send_template_version },
+#endif
 	
 	{ "SCHE_01", ATLV_SCHED, set_sched, NULL, &g_timer[0]},
 	{ "SCHE_02", ATLV_SCHED, set_sched, NULL, &g_timer[1]},
@@ -262,6 +299,11 @@ void TransProp(void)
 //	}
 }
 
+int send_version(struct prop *prop, void *arg)
+{
+	return prop_send(prop, version, strlen(version), arg);
+}
+
 void ParseProp(U8 *command, U8 size)
 {
 	if(0x01==command[0] && size>=2)                // send specfied props to ayla cloud once
@@ -382,7 +424,7 @@ void XApp_Init(void)
 	
 	// initialize protocol prop
 	InitProp();
-
+	
 	// construct all tasks
 	taskERV  = new CXTaskComERV;                   // erv task for usart communication with outdoor and indoor units
 	taskHost = new CXTaskHost;                     // host task for sampling dip setiing, and led blink/on/off

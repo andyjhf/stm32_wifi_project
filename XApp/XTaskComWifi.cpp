@@ -1,5 +1,6 @@
 #include "XTaskComWifi.h"
 #include "XApp.h"
+#include "demo_img_mgmt.h"
 
 CXTaskComWifi::CXTaskComWifi(void)
 {
@@ -8,6 +9,7 @@ CXTaskComWifi::CXTaskComWifi(void)
 	feature_mask |= MCU_LAN_SUPPORT;
 	feature_mask |= MCU_TIME_SUBSCRIPTION;         // sync utc time to host from ads because of schedule
 	feature_mask |= MCU_DATAPOINT_CONFIRM;
+	feature_mask |= MCU_OTA_SUPPORT;
 	
 	m_enable  = 1;                                 // enable to serial polling between host and wifi module
 	m_factory = 0;                                 // factory reset flag(by dip)
@@ -81,7 +83,15 @@ void CXTaskComWifi::DoReal(void)
 
 		// serial rx/tx
 		serial_poll();
-
+#ifdef DEMO_IMG_MGMT
+		if (template_req &&
+		    prop_send_done(prop_lookup("oem_host_version")) == 0) {
+			/*
+			 * Template version number has been sent.
+			 */
+			template_version_sent();
+		}
+#endif
 		prop = prop_lookup_error();                // clear prop error
 		if (prop != NULL)
 		{
