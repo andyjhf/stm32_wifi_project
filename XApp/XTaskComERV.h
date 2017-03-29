@@ -31,6 +31,7 @@
 #define REG_ADDR_FAULT						0x09
 #define REG_ADDR_DEV_INFO					0x0a
 #define REG_ADDR_DEV_STATE				0x0b
+#define REG_ADDR_MAX_NUM					0x0c
 
 typedef struct tagXERVCtrlCmd{                    // struct of ERV control command 
 	U8  addr;                                      // ERV addr

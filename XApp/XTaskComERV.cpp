@@ -62,8 +62,8 @@ U16 CXTaskComERV::OnNewSend()
 		m_txBuf[8] = LOBYTE(m_ervctrlCmd.reg_data);						//Data LO
 		
 		U16 usCRC16=IDCOM_CRC16(&m_txBuf[0], 0x09);
-		m_txBuf[9] = HIBYTE(usCRC16);													//CRC HI
-		m_txBuf[10] = LOBYTE(usCRC16);												//CRC LO
+		m_txBuf[9] = LOBYTE(usCRC16);												//CRC LO
+		m_txBuf[10] = HIBYTE(usCRC16);													//CRC HI
 		
 		m_txLen = 11;
 		
@@ -84,11 +84,11 @@ U16 CXTaskComERV::OnNewSend()
 		m_txBuf[2] = 0x00;																		//Starting address HI
 		m_txBuf[3] = 0x00;																		//Starting address LO
 		m_txBuf[4] = 0x00;																		//Num of Registers Hi
-		m_txBuf[5] = 0x0a;																		//Num of Registers LO
+		m_txBuf[5] = REG_ADDR_MAX_NUM;												//Num of Registers LO
 
 		U16 usCRC16=IDCOM_CRC16(&m_txBuf[0], 0x06);
-		m_txBuf[6] = HIBYTE(usCRC16);													//CRC HI
-		m_txBuf[7] = LOBYTE(usCRC16);													//CRC LO
+		m_txBuf[6] = LOBYTE(usCRC16);													//CRC LO
+		m_txBuf[7] = HIBYTE(usCRC16);													//CRC HI
 
 		m_txLen = 8;
 		
@@ -343,10 +343,10 @@ U8 CXTaskComERV::checkFrame(void)
 	}
 
 	// check frame CRC (TODO:do not check CRC, reduce the execution time)
-//	if(IDCOM_CRC16(&m_rxBuf[1], m_rxLen-4)!= ((m_rxBuf[m_rxLen-3]<<8)|m_rxBuf[m_rxLen-2]))
-//	{
-//		return 0;
-//	}
+	if(IDCOM_CRC16(&m_rxBuf[0], m_rxLen-2)!= ((m_rxBuf[m_rxLen-1]<<8)|m_rxBuf[m_rxLen-2]))
+	{
+		return 0;
+	}
 
 	return 1;
 }

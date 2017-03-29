@@ -25,7 +25,7 @@ CMSerial::CMSerial(void)
 	m_txLen   = 0;                                 // transmit data size
 	m_idleCnt = 0;                                 // timer count of interval between one char and one char
 	
-	m_onesendCnt = 500;															//timer count of send frequency
+	m_onesendCnt = 1000;															//timer count of send frequency
 
 	m_tmRxOver= 5;                                 // configured interval time
 	m_tmNoAck = 200;                                // configured no acknowledge time
