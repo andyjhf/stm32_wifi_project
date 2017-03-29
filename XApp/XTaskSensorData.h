@@ -19,6 +19,8 @@ public:
 
 private:
 	U8 getTimeHours(void);                        // sampling routine
+	U32 getUTCTime(void);
+	U32	time_local(const U32 *utc);
 
 private:
 	U8	m_enable;																	//RTC config state
@@ -29,6 +31,9 @@ private:
 	U32 m_startTick;
 	U8	m_hourState;
 	U8	m_dayState;
+	U8	m_updateRTC;
+	U32	m_preTime;
+	U32	m_lastTime;
 };
 
 #ifdef __cplusplus

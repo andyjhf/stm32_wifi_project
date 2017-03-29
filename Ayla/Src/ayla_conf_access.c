@@ -87,6 +87,11 @@ char conf_mfg_serial[30];
 char conf_oem[30];
 char conf_oem_model[30];
 char conf_ssid[CONF_WIFI_SSID_MAX];
+int conf_time = 0;
+char update_utc_time_enable = 0;
+char time_index = 0;
+struct timezone_settings conf_timezone_settings;
+struct daylight_settings conf_daylight_info;
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -190,6 +195,108 @@ static void conf_model_rx(void *buf, size_t len)
 
 ///////////////////////////////////////////////////////////////////////////////
 // zhaojianchuan 2016.04.28
+/*
+ * Handle response for request time
+ */
+static void conf_time_rx(void *buf, size_t len)
+{
+	struct ayla_tlv *tlv;
+
+	tlv = tlv_get(ATLV_INT, buf, len);
+	if (!tlv) {
+		return;
+	}
+
+	conf_time = get_ua_be32((be32 *)(tlv + 1));
+}
+
+static void conf_timezone_valid_rx(void *buf, size_t len)
+{
+	struct ayla_tlv *tlv;
+	u32 value;
+
+	tlv = tlv_get(ATLV_BOOL, buf, len);
+	if (!tlv) {
+		return;
+	}
+	if (get_ua_with_len(tlv + 1, tlv->len, &value)) {
+		return;
+	}
+	
+	conf_timezone_settings.valid = (value != 0);
+	if (!conf_timezone_settings.valid) {
+			conf_timezone_settings.mins = 0;
+		}
+}
+
+static void conf_timezone_rx(void *buf, size_t len)
+{
+	struct ayla_tlv *tlv;
+	u32 value;
+
+	tlv = tlv_get(ATLV_INT, buf, len);
+	if (!tlv) {
+		return;
+	}
+	if (get_ua_with_len(tlv + 1, tlv->len, &value)) {
+		return;
+	}
+	
+	conf_timezone_settings.mins = (s32)value;
+}
+
+static void conf_dst_active_rx(void *buf, size_t len)
+{
+	struct ayla_tlv *tlv;
+	u32 value;
+
+	tlv = tlv_get(ATLV_BOOL, buf, len);
+	if (!tlv) {
+		return;
+	}
+	if (get_ua_with_len(tlv + 1, tlv->len, &value)) {
+		return;
+	}
+	
+	conf_daylight_info.active = (value != 0);
+}
+
+static void conf_dst_change_rx(void *buf, size_t len)
+{
+	struct ayla_tlv *tlv;
+	u32 value;
+
+	tlv = tlv_get(ATLV_INT, buf, len);
+	if (!tlv) {
+		return;
+	}
+	if (get_ua_with_len(tlv + 1, tlv->len, &value)) {
+		return;
+	}
+	
+	conf_daylight_info.change = (u32)value;
+}
+
+static void conf_dst_valid_rx(void *buf, size_t len)
+{
+	struct ayla_tlv *tlv;
+	u32 value;
+
+	tlv = tlv_get(ATLV_BOOL, buf, len);
+	if (!tlv) {
+		return;
+	}
+	if (get_ua_with_len(tlv + 1, tlv->len, &value)) {
+		return;
+	}
+	
+	conf_daylight_info.valid = (value != 0);
+	if (!conf_daylight_info.valid) {
+			conf_daylight_info.active = 0;
+			conf_daylight_info.change = 0;
+	}
+}
+
 /*
  * Handle response for request mfg_model
  */
@@ -758,6 +865,12 @@ void conf_poll(void)
 	const enum conf_token conf_oem_tokens[]        = { CT_oem, CT_oem};
 	const enum conf_token conf_oem_model_tokens[]  = { CT_oem, CT_model};
 	const enum conf_token conf_ssid_tokens[]       = { CT_wifi, CT_profile, (enum conf_token)10, CT_ssid };
+	const enum conf_token time_tokens[] = { CT_sys, CT_time };
+	const enum conf_token timezone_tokens[] = { CT_sys, CT_timezone };
+	const enum conf_token timezone_valid_tokens[] = { CT_sys, CT_timezone_valid };
+	const enum conf_token dst_active_tokens[] = { CT_sys, CT_dst_active };
+	const enum conf_token dst_change_tokens[] = { CT_sys, CT_dst_change };
+	const enum conf_token dst_valid_tokens[] = { CT_sys, CT_dst_valid };
 	if (conf_cb) {
 		return;			/* a request is pending */
 	}
@@ -810,7 +923,57 @@ void conf_poll(void)
 		}
 		return;
 	}
-
+	
+	if(update_utc_time_enable == 1)
+	{
+		switch(time_index)                          
+		{
+			case 0:                          
+				if (conf_read(time_tokens, 2, conf_time_rx)) {
+					return;
+				}
+				time_index++;
+				break;
+			case 1:                           
+				if (conf_read(timezone_valid_tokens, 2, conf_timezone_valid_rx)) {
+					return;		/* request could not be sent */
+				}
+				time_index++;
+				break;
+			case 2:                         
+				if (conf_read(timezone_tokens, 2, conf_timezone_rx)) {
+					return;		/* request could not be sent */
+				}
+				time_index++;
+				break;
+			case 3:                           
+				if (conf_read(dst_active_tokens, 2, conf_dst_active_rx)) {
+					return;		/* request could not be sent */
+				}
+				time_index++;
+				break;
+			case 4:                          
+				if (conf_read(dst_change_tokens, 2, conf_dst_change_rx)) {
+					return;		/* request could not be sent */
+				}
+				time_index++;
+				break;
+			case 5:                          
+				if (conf_read(dst_valid_tokens, 2, conf_dst_valid_rx)) {
+					return;		/* request could not be sent */
+				}
+				break;
+			default:
+				time_index = 0;
+				break;
+		}
+		if(time_index >= 5){
+			update_utc_time_enable = 0;
+			time_index = 0;
+		}
+		return;
+	}
+	            
 ///////////////////////////////////////////////////////////////////////////////
 	
 #ifdef AYLA_REG_TOKEN

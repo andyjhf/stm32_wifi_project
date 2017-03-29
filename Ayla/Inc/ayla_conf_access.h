@@ -211,6 +211,10 @@ extern char conf_mfg_serial[];
 extern char conf_oem[];
 extern char conf_oem_model[];
 extern char conf_ssid[];
+extern int conf_time;
+extern char update_utc_time_enable;
+extern struct timezone_settings conf_timezone_settings;
+extern struct daylight_settings conf_daylight_info;
 ///////////////////////////////////////////////////////////////////////////////
 
 /*
