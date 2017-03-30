@@ -27,7 +27,7 @@
 #define  SZ_OEM_VER_SIZE  50                       // oem host version prop buffer size
 
 #define OD_DAT_LINK       				0x01                     // ERV link state
-#define OD_DAT_READY      				0x80                     // ERV ready state
+//#define OD_DAT_READY      				0x80                     // ERV ready state
 
 #define POWER_STATE								0x04
 #define SLEEP_STATE								0x20

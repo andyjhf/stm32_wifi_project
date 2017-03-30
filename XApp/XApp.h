@@ -12,6 +12,7 @@ extern U8 g_wifiReset;                             // 1: request to reset wifi m
 extern U8 g_hostReset;                             // 1: request to reset self-host
 extern U8 g_led2;                                  // set led2 on/off manual or automatic mode
 extern U8 g_led3;                                  // set led3 on/off manual or automatic mode
+extern U8 g_rs485;
 
 // global protocol data
 extern U8  g_platform[PLATFORM_SIZE]; 

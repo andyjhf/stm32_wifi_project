@@ -5,6 +5,7 @@ U8 g_wifiReset;                                    // 1: request to reset wifi m
 U8 g_hostReset;                                    // 1: request to reset self-host
 U8 g_led2 = 0xff;                                  // set led2 on/off manual or automatic mode(0xff)
 U8 g_led3 = 0xff;                                  // set led3 on/off manual or automatic mode(0xff)
+U8 g_rs485 = 0;																		 // RS485 state  0: rs485 data check error 1: rs485 open or data ok
                               
 // global protocol data
 U8  g_platform[PLATFORM_SIZE]; 

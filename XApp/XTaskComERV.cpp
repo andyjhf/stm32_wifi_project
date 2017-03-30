@@ -105,7 +105,7 @@ U16 CXTaskComERV::OnNewRecv()
 		m_sendSlaveSddr = 0;
 		return 0;
 	}
-	g_ervinfo[ERVINFO_INDEX_BASE_STATE] |= OD_DAT_READY;                      // outdoor ready OK and clear error counter
+//	g_ervinfo[ERVINFO_INDEX_BASE_STATE] |= OD_DAT_READY;                      // outdoor ready OK and clear error counter
 	m_errCnt = 0;
 	m_recvCmd = m_rxBuf[F_FUCTIONS];	                   // the command of an effective frame	
 	
@@ -283,6 +283,7 @@ U16 CXTaskComERV::OnNewRecv()
 		
 		
 	}
+	g_rs485 = 1;
 	g_ervinfo[ERVINFO_INDEX_BASE_STATE] |= OD_DAT_LINK;
 	m_sendSlaveSddr = 0;
 	return 1;
@@ -357,25 +358,26 @@ void CXTaskComERV::onError(void)
 		m_errCnt++;
 
 	// blink quickly for 30 secs when frame check is error
-	if(m_errCnt>=8)  // 5 seconds
-	{
-		g_ervinfo[ERVINFO_INDEX_BASE_STATE] &= ~OD_DAT_READY;
-	}
+//	if(m_errCnt>=8)  // 5 seconds
+//	{
+//		g_ervinfo[ERVINFO_INDEX_BASE_STATE] &= ~OD_DAT_READY;
+//	}
 
+	if(0==m_rxLen)
+	{
+		g_rs485 = 1;
+		g_ervinfo[ERVINFO_INDEX_BASE_STATE] &= ~OD_DAT_LINK;                  // outdoor offline              // the A/B wires are open,blink slowly
+	}
+	else
+	{
+		g_rs485 = 0;
+	}
+	g_ervinfo[ERVINFO_INDEX_BASE_STATE] &= ~OD_DAT_LINK;                  // outdoor offline
+	
 	// determine the error kind after 30 secs(A/B wires reversed or A/B wires are open)
 	if(m_errCnt>=300)
 	{
 		// update g_sys[15] data(outdoor ready over and link state)
-		if(0==m_rxLen)
-		{
-			g_ervinfo[ERVINFO_INDEX_BASE_STATE] |= OD_DAT_READY;              // the A/B wires are open,blink slowly
-		}
-		else
-		{
-			g_ervinfo[ERVINFO_INDEX_BASE_STATE] &= ~OD_DAT_READY;             // the A/B wires are opposite,blink quickly
-		}
-		g_ervinfo[ERVINFO_INDEX_BASE_STATE] &= ~OD_DAT_LINK;                  // outdoor offline
-
 		m_queue->Clear();                          // clear remote ctrl list
 	}
 }
